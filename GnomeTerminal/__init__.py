@@ -10,29 +10,26 @@ except ImportError:
     pass
 import os
 
-__iid__ = "PythonInterface/v0.1"
+__iid__ = "PythonInterface/v0.2"
 __prettyname__ = "GnomeTerminal"
 __version__ = "1.0"
-__trigger__ = "gt "
+__trigger__ = "gt"
 __author__ = "Stanislav Popov"
 __dependencies__ = []
 
 iconPath = os.path.dirname(__file__)+"/gnome-terminal.svg"
+lastItems = []
 
 def handleQuery(query):
     if query.isTriggered:
         item = Item(id=__prettyname__, icon=iconPath, completion=query.rawString)
         stripped = query.string.strip()
 
-        if stripped == '':
-            item.text = "Enter profile name"
+        items = getProfileItems(query)
+        if len(items) == 0:
+            item.text = "Profile not found"
             return item
-        else:
-            items = getProfileItems(query)
-            if len(items) == 0:
-                item.text = "Profile not found"
-                return item
-            return items
+        return items
 
 def getProfileItems(query):
     s = Gio.Settings(schema_id='org.gnome.Terminal.ProfilesList')
@@ -59,8 +56,15 @@ def getProfileItems(query):
                     ProcAction(
                         text="Open terminal",
                         commandline=['gnome-terminal', '--window-with-profile', profile_name]
+                    ),
+                    FuncAction(
+                        "Store selected terminal",
+                        lambda profile_name=profile_name: storeItem(profile_name)
                     )
                 ]
             )
         )
     return items
+
+def storeItem(item):
+    lastItems.append(profile_name)

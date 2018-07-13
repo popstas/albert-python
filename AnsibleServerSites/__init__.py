@@ -10,7 +10,7 @@ import os
 __iid__ = "PythonInterface/v0.1"
 __prettyname__ = "AnsibleServerSites"
 __version__ = "1.0"
-__trigger__ = "a "
+__trigger__ = "a"
 __author__ = "Stanislav Popov"
 __dependencies__ = []
 
@@ -25,15 +25,11 @@ def handleQuery(query):
         item = Item(id=__prettyname__, icon=iconPath, completion=query.rawString)
         stripped = query.string.strip()
 
-        if stripped == '':
-            item.text = "Enter site domain or host name"
+        items = getSitesItems(query)
+        if len(items) == 0:
+            item.text = "Site not found"
             return item
-        else:
-            items = getSitesItems(query)
-            if len(items) == 0:
-                item.text = "Site not found"
-                return item
-            return items
+        return items
 
 def getSitesItems(query):
     q = query.string
